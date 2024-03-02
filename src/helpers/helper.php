@@ -7,7 +7,6 @@ function dump($var)
     print_r($var);
     echo '</pre>';
     $int++;
-
 }
 
 function dumpDie($var)

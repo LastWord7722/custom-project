@@ -2,8 +2,8 @@
 
 use App\RMVC\App;
 
+require '../helpers/helper.php';
 require '../vendor/autoload.php';
 require '../routes/web.php';
-require '../helpers/helper.php';
 
 App::run();
