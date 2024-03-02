@@ -1,6 +1,6 @@
 <?php
 
-use app\RMVC\App;
+use App\RMVC\App;
 
 require '../vendor/autoload.php';
 require '../routes/web.php';
