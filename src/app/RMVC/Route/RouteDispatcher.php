@@ -17,7 +17,7 @@ class RouteDispatcher
         $this->routeConfiguration = $routeConfiguration;
     }
 
-    public function process()
+    public function process(): bool
     {
         // refactoring?
         $this->routeConfiguration->setUri($this->cleanUri($this->routeConfiguration->getUri()));
@@ -27,7 +27,7 @@ class RouteDispatcher
 
         $this->makeRegexRequest();
 
-        $this->checkRequestRouteWithCurrentRoute();
+        return $this->checkRequestRouteWithCurrentRoute();
     }
 
     private function saveRequestUri(): void
@@ -37,9 +37,10 @@ class RouteDispatcher
             $this->requestUri = $this->cleanUri($currentRequestUri);
         }
     }
+
     private function cleanUri($str): string
     {
-       return preg_replace('/(^\/)|(\/$)/','', $str);
+        return preg_replace('/(^\/)|(\/$)/','', $str);
     }
 
     private function setParamMap(): void
@@ -50,7 +51,7 @@ class RouteDispatcher
         /** @var string $itemParam */
         /** @var int $keyParam */
         foreach ($configurationArr as $keyParam => $itemParam){
-            if (preg_match('/{.*}/', $itemParam,)){
+            if (preg_match('/{.*}/', $itemParam)){
                 $this->paramMap[$keyParam] = preg_replace('/(^{)|(}$)/','', $itemParam);
             }
         }
@@ -61,7 +62,9 @@ class RouteDispatcher
         $requestUriArray = explode('/', $this->requestUri);
 
         foreach ($this->paramMap as $paramKey => $paramItem){
-            if (!isset($requestUriArray[$paramKey])) return;
+            if (!isset($requestUriArray[$paramKey])) {
+                continue;
+            }
 
             $this->requestParamMap[$paramItem] = $requestUriArray[$paramKey];
             $requestUriArray[$paramKey] = '{.*}';
@@ -70,20 +73,20 @@ class RouteDispatcher
         $this->requestUri = implode('/',$requestUriArray);
         $this->requestUri = $this->prepareRegex($this->requestUri);
     }
+
     private function prepareRegex(string $str): string
     {
         return str_replace('/','\/', $str);
     }
 
-    private function checkRequestRouteWithCurrentRoute()
+    private function checkRequestRouteWithCurrentRoute(): bool
     {
-        dump($this->requestUri);
-        dump($this->routeConfiguration->getUri());
-        dump(preg_match("/$this->requestUri/",$this->routeConfiguration->getUri()));
-
-        if (preg_match("/$this->requestUri/",$this->routeConfiguration->getUri())){
+        //TODO: ????
+        if (preg_match("#^$this->requestUri$#", $this->routeConfiguration->getUri())){
             $this->render();
+            return true;
         }
+        return false;
     }
 
     private function render()
@@ -91,9 +94,7 @@ class RouteDispatcher
         $pathController = $this->routeConfiguration->getPathController();
         $action = $this->routeConfiguration->getAction();
 
-        $controller = new $pathController;
         $methodArguments = array_values($this->requestParamMap);
-        $controller->$action(...$methodArguments);
-
+        (new $pathController)->$action(...$methodArguments);
     }
 }

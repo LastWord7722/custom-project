@@ -13,7 +13,10 @@ class App
         $routeMethodName = "get{$methodName}RouteArr";
         foreach (Router::$routeMethodName() as $routeConfiguration) {
             $routeDispatcher = new RouteDispatcher($routeConfiguration);
-            $routeDispatcher->process();
+            $isFindRoute = $routeDispatcher->process();
+            if ($isFindRoute){
+                break;
+            }
         }
     }
 }

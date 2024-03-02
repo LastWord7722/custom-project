@@ -14,4 +14,11 @@ class PostController extends Controller
         dump($post);
         dumpDie('show action');
     }
+
+    public function show2($post, $id)
+    {
+        dump($post);
+        dump($id);
+        dumpDie('show action2');
+    }
 }
